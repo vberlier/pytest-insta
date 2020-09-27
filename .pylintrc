@@ -1,0 +1,13 @@
+[FORMAT]
+
+good-names=i,j,k,_,n,x,y,tr
+
+[MESSAGES CONTROL]
+
+disable=
+  superfluous-parens,
+  missing-module-docstring,
+  missing-class-docstring,
+  missing-function-docstring,
+  unsupported-assignment-operation,
+  protected-access

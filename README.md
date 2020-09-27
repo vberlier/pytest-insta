@@ -1,2 +1,3 @@
-# pytest-snap
-A minimal snapshot testing plugin for pytest.
+# pytest-insta
+
+> A flexible and user-friendly snapshot testing plugin for pytest.
