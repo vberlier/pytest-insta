@@ -1,6 +1,6 @@
 [FORMAT]
 
-good-names=i,j,k,_,n,x,y,tr
+good-names=i,j,k,_,n,x,y,tr,T
 
 [MESSAGES CONTROL]
 
@@ -10,4 +10,6 @@ disable=
   missing-class-docstring,
   missing-function-docstring,
   unsupported-assignment-operation,
-  protected-access
+  too-few-public-methods,
+  protected-access,
+  no-self-use

@@ -3,11 +3,11 @@ __all__ = ["SnapshotSession", "SnapshotContext"]
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Set, Tuple, Type
+from typing import Any, Dict, Set, Tuple
 
 from _pytest.terminal import TerminalReporter
 
-from .snapshot import Snapshot
+from .format import Fmt
 from .utils import is_ci
 
 
@@ -15,18 +15,15 @@ from .utils import is_ci
 class SnapshotContext:
     path: Path
     counter: int
-    strategy: str
     available: Set[Path]
     matching: Set[Path]
-    differing: Dict[Path, Tuple[Type[Snapshot], Any]]
+    differing: Dict[Path, Tuple[Fmt, Any]]
 
     def __post_init__(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
     @property
-    def created(self) -> Dict[Path, Tuple[Type[Snapshot], Any]]:
-        if self.strategy not in ("all", "new"):
-            return {}
+    def created(self) -> Dict[Path, Tuple[Fmt, Any]]:
         return {
             path: pair
             for path, pair in self.differing.items()
@@ -34,9 +31,7 @@ class SnapshotContext:
         }
 
     @property
-    def updated(self) -> Dict[Path, Tuple[Type[Snapshot], Any]]:
-        if self.strategy != "all":
-            return {}
+    def updated(self) -> Dict[Path, Tuple[Fmt, Any]]:
         return {
             path: pair
             for path, pair in self.differing.items()
@@ -45,19 +40,21 @@ class SnapshotContext:
 
     @property
     def deleted(self) -> Set[Path]:
-        if self.strategy != "all":
-            return set()
         return self.available - self.matching - self.differing.keys()
 
     def flush(self, session: "SnapshotSession"):
-        differing = [(self.created, session.created), (self.updated, session.updated)]
+        created, updated, deleted = (
+            self.created if session.strategy in ["all", "new"] else {},
+            self.updated if session.strategy == "all" else {},
+            self.deleted if session.strategy == "all" else set(),
+        )
 
-        for source, target in differing:
-            for path, (snapshot_type, value) in source.items():
-                snapshot_type.update_value(value, path)
+        for source, target in [(created, session.created), (updated, session.updated)]:
+            for path, (fmt, value) in source.items():
+                fmt.dump(path, value)
                 target.add(path)
 
-        for path in self.deleted:
+        for path in deleted:
             path.unlink()
             session.deleted.add(path)
 
@@ -82,7 +79,7 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
 
     def __missing__(self, path: Path) -> SnapshotContext:
         available = set(path.parent.glob(f"{path.name}__*"))
-        ctx = SnapshotContext(path, 0, self.strategy, available, set(), {})
+        ctx = SnapshotContext(path, 0, available, set(), {})
         self[path] = ctx
         return ctx
 

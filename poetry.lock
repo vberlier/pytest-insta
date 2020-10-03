@@ -287,7 +287,7 @@ python-versions = "*"
 version = "3.7.4.3"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Module for decorators, wrappers and monkey patching."
 name = "wrapt"
 optional = false
@@ -295,7 +295,7 @@ python-versions = "*"
 version = "1.12.1"
 
 [metadata]
-content-hash = "f3b70007cb787e07d8fb14c7899e07fd0eecb1ceeafc597c51ac10cef15b7b99"
+content-hash = "0b2ff0d6b7a6b8c0b0619be615666375c0b6d5dd7bfa539f296ad0c1145a126b"
 python-versions = "^3.8"
 
 [metadata.files]

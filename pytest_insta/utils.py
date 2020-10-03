@@ -1,12 +1,9 @@
-__all__ = ["ForwardedArgs", "normalize_node_name", "hexdump", "hexload", "is_ci"]
+__all__ = ["normalize_node_name", "hexdump", "hexload", "is_ci"]
 
 
 import math
 import os
 import re
-from typing import Any, Dict, Tuple
-
-ForwardedArgs = Tuple[Tuple[Any, ...], Dict[str, Any]]
 
 
 def normalize_node_name(name: str):

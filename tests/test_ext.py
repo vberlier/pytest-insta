@@ -2,16 +2,16 @@
 
 
 def test_text(snapshot):
-    assert "<p>Hello</p>" == snapshot(ext=".html")
+    assert snapshot(ext=".html") == "<h1>Hello</h1>\n"
 
 
 def test_binary(snapshot):
-    assert bytes(range(256)) == snapshot(fmt="binary", ext=".dat")
+    assert snapshot(fmt="binary", ext=".dat") == bytes(range(256))
 
 
 def test_hexdump(snapshot):
-    assert bytes(range(256)) == snapshot(fmt="hexdump", ext=".dump")
+    assert snapshot(fmt="hexdump", ext=".dump") == bytes(range(256))
 
 
 def test_json(snapshot):
-    assert {"a": {"b": "c"}} == snapshot(fmt="json", ext=".example")
+    assert snapshot(fmt="json", ext=".example") == {"a": {"b": "c"}}

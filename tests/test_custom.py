@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import NamedTuple
 
-from pytest_insta import ForwardedArgs, Snapshot
+from pytest_insta import Fmt
 
 
 class Point(NamedTuple):
@@ -9,17 +9,15 @@ class Point(NamedTuple):
     y: int
 
 
-class SnapshotPoint(Snapshot, Point, fmt="point"):
+class FmtPoint(Fmt[Point], name="point"):
     extension = ".pt"
 
-    @classmethod
-    def get_args(cls, path: Path) -> ForwardedArgs:
-        return tuple(map(int, path.read_text().split())), {}
+    def load(self, path: Path) -> Point:
+        return Point(*map(int, path.read_text().split()))
 
-    @classmethod
-    def update_value(cls, value: Point, path: Path):
+    def dump(self, path: Path, value: Point):
         path.write_text(f"{value.x} {value.y}")
 
 
 def test_point(snapshot):
-    assert Point(4, 2) == snapshot(fmt="point")
+    assert snapshot(fmt="point") == Point(4, 2)
