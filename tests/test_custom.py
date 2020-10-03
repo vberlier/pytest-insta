@@ -9,7 +9,7 @@ class Point(NamedTuple):
     y: int
 
 
-class FmtPoint(Fmt[Point], name="point"):
+class FmtPoint(Fmt[Point]):
     extension = ".pt"
 
     def load(self, path: Path) -> Point:
@@ -20,4 +20,5 @@ class FmtPoint(Fmt[Point], name="point"):
 
 
 def test_point(snapshot):
-    assert snapshot(fmt="point") == Point(4, 2)
+    assert snapshot("pt") == Point(4, 2)
+    assert snapshot(".pt") == Point(4, 5)

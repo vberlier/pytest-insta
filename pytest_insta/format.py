@@ -4,7 +4,7 @@ __all__ = ["Fmt", "FmtText", "FmtBinary", "FmtHexdump", "FmtJson", "FmtPickle"]
 import json
 import pickle
 from pathlib import Path
-from typing import Any, ClassVar, Dict, Generic, Type, TypeVar
+from typing import Any, ClassVar, Dict, Generic, Optional, Tuple, Type, TypeVar
 
 from .utils import hexdump, hexload
 
@@ -12,12 +12,19 @@ T = TypeVar("T")
 
 
 class Fmt(Generic[T]):
-    registry: ClassVar[Dict[str, Type["Fmt"]]] = {}
     extension: ClassVar[str] = ""
+    registry: ClassVar[Dict[str, Type["Fmt"]]] = {}
 
-    def __init_subclass__(cls, name: str = None):
-        if name:
-            cls.registry[name] = cls
+    def __init_subclass__(cls):
+        if cls.extension:
+            cls.registry[cls.extension] = cls
+
+    @classmethod
+    def from_spec(cls, spec: str) -> Tuple[Optional[str], Optional["Fmt"]]:
+        for name, key in [(None, spec), (None, f".{spec}"), (spec, Path(spec).suffix)]:
+            if format_cls := cls.registry.get(key):
+                return name, format_cls()
+        return None, None
 
     def load(self, path: Path) -> T:
         pass
@@ -26,7 +33,7 @@ class Fmt(Generic[T]):
         pass
 
 
-class FmtText(Fmt[str], name="text"):
+class FmtText(Fmt[str]):
     extension = ".txt"
 
     def load(self, path: Path) -> str:
@@ -36,7 +43,7 @@ class FmtText(Fmt[str], name="text"):
         path.write_text(value)
 
 
-class FmtBinary(Fmt[bytes], name="binary"):
+class FmtBinary(Fmt[bytes]):
     extension = ".bin"
 
     def load(self, path: Path) -> bytes:
@@ -46,7 +53,7 @@ class FmtBinary(Fmt[bytes], name="binary"):
         path.write_bytes(value)
 
 
-class FmtHexdump(Fmt[bytes], name="hexdump"):
+class FmtHexdump(Fmt[bytes]):
     extension = ".hexdump"
 
     def load(self, path: Path) -> bytes:
@@ -56,7 +63,7 @@ class FmtHexdump(Fmt[bytes], name="hexdump"):
         path.write_text("\n".join(hexdump(value)) + "\n")
 
 
-class FmtJson(Fmt[Any], name="json"):
+class FmtJson(Fmt[Any]):
     extension = ".json"
 
     def load(self, path: Path) -> Any:
@@ -66,7 +73,7 @@ class FmtJson(Fmt[Any], name="json"):
         path.write_text(json.dumps(value, indent=2) + "\n")
 
 
-class FmtPickle(Fmt[Any], name="pickle"):
+class FmtPickle(Fmt[Any]):
     extension = ".pickle"
 
     def load(self, path: Path) -> Any:

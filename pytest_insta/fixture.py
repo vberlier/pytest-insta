@@ -56,28 +56,25 @@ class SnapshotFixture:
         session: SnapshotSession = getattr(request.config, "_snapshot_session")
         return cls(session[path], session)
 
-    def __call__(self, name: str = None, fmt: str = "text", ext: str = "") -> Any:
+    def __call__(self, spec: str = ".txt") -> Any:
         __tracebackhide__ = True  # pylint: disable=unused-variable
 
-        if not (format_cls := Fmt.registry.get(fmt)):
-            raise ValueError(f"invalid snapshot format {fmt!r}")
+        name, fmt = Fmt.from_spec(spec)
 
+        if not fmt:
+            raise ValueError(f"invalid snapshot format {spec!r}")
         if not name:
-            name = str(self.ctx.counter)
+            name = f"{self.ctx.counter}{fmt.extension}"
             self.ctx.counter += 1
 
-        ext = ext or format_cls.extension
-        path = self.ctx.path.with_name(f"{self.ctx.path.name}__{name}{ext}")
-        format_instance = format_cls()
+        path = self.ctx.path.with_name(f"{self.ctx.path.name}__{name}")
 
         current = (
-            format_instance.load(path)
-            if path in self.ctx.available
-            else SnapshotNotfound(path)
+            fmt.load(path) if path in self.ctx.available else SnapshotNotfound(path)
         )
 
         return (
-            SnapshotRecorder(path, format_instance, self.ctx, current)
+            SnapshotRecorder(path, fmt, self.ctx, current)
             if self.session.strategy == "all"
             or self.session.strategy == "new"
             and isinstance(current, SnapshotNotfound)
