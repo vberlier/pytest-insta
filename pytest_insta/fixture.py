@@ -75,9 +75,8 @@ class SnapshotFixture:
 
         return (
             SnapshotRecorder(path, fmt, self.ctx, current)
-            if self.session.strategy == "update"
-            or self.session.strategy == "update-new"
-            and isinstance(current, SnapshotNotfound)
+            if self.session.should_use_recorder
+            or (self.session.should_create and isinstance(current, SnapshotNotfound))
             else current
         )
 

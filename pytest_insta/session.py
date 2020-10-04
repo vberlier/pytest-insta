@@ -44,20 +44,20 @@ class SnapshotContext:
         return self.available - self.matching - self.differing.keys()
 
     def flush(self, session: "SnapshotSession"):
-        created, updated, deleted = (
-            self.created if session.strategy in ["update", "update-new"] else {},
-            self.updated if session.strategy == "update" else {},
-            self.deleted if session.strategy == "update" else set(),
-        )
-
-        for source, target in [(created, session.created), (updated, session.updated)]:
-            for path, (fmt, value) in source.items():
+        if session.should_create:
+            for path, (fmt, value) in self.created.items():
                 fmt.dump(path, value)
-                target.add(path)
+                session.created.add(path)
 
-        for path in deleted:
-            path.unlink()
-            session.deleted.add(path)
+        if session.should_update:
+            for path, (fmt, value) in self.updated.items():
+                fmt.dump(path, value)
+                session.updated.add(path)
+
+        if session.should_delete:
+            for path in self.deleted:
+                path.unlink()
+                session.deleted.add(path)
 
         self.reset()
 
@@ -89,6 +89,22 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
         self[path] = ctx
         return ctx
 
+    @property
+    def should_use_recorder(self) -> bool:
+        return self.strategy in ["update"]
+
+    @property
+    def should_create(self) -> bool:
+        return self.strategy in ["update", "update-new"]
+
+    @property
+    def should_update(self) -> bool:
+        return self.strategy in ["update"]
+
+    @property
+    def should_delete(self) -> bool:
+        return self.strategy in ["update"]
+
     def write_summary(self):
         if not any([self.created, self.updated, self.deleted]):
             return
@@ -97,9 +113,9 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
         self.tr.section("SNAPSHOTS", blue=True)
 
         report = {
-            "CREATED": self.created,
-            "UPDATED": self.updated,
-            "DELETED": self.deleted,
+            "CREATE": self.created,
+            "UPDATE": self.updated,
+            "DELETE": self.deleted,
         }
 
         for operation, snapshots in report.items():
