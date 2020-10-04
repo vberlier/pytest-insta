@@ -20,6 +20,7 @@ def pytest_addoption(parser):
             "update",
             "update-new",
             "update-none",
+            "record",
         ],
         help="Set the snapshot strategy. "
         'Defaults to "auto" when the argument is not specified.',

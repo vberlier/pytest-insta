@@ -49,7 +49,16 @@ class SnapshotContext:
                 fmt.dump(path, value)
                 session.created.add(path)
 
-        if session.should_update:
+        if session.should_record:
+            record_dir = session.record_dir / self.path.parent.parent
+            record_dir.mkdir(parents=True, exist_ok=True)
+
+            for path, (fmt, value) in self.updated.items():
+                path = record_dir / path.name
+                fmt.dump(path, value)
+                session.recorded.add(path)
+
+        elif session.should_update:
             for path, (fmt, value) in self.updated.items():
                 fmt.dump(path, value)
                 session.updated.add(path)
@@ -71,13 +80,18 @@ class SnapshotContext:
 class SnapshotSession(Dict[Path, SnapshotContext]):
     session: Session
     tr: TerminalReporter = field(init=False)
+    record_dir: Path = field(init=False)
     strategy: str = "auto"
+    recorded: Set[Path] = field(default_factory=set)
     created: Set[Path] = field(default_factory=set)
     updated: Set[Path] = field(default_factory=set)
     deleted: Set[Path] = field(default_factory=set)
 
     def __post_init__(self):
+        record_dir = self.session.config.cache.makedir("insta")  # type: ignore
+
         self.tr = self.session.config.pluginmanager.getplugin("terminalreporter")
+        self.record_dir = Path(record_dir).relative_to(Path(".").resolve())
         self.strategy = self.session.config.option.insta
 
         if self.strategy == "auto":
@@ -90,29 +104,30 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
         return ctx
 
     @property
-    def should_use_recorder(self) -> bool:
-        return self.strategy in ["update"]
+    def should_record(self) -> bool:
+        return self.strategy in ["record"]
 
     @property
     def should_create(self) -> bool:
-        return self.strategy in ["update", "update-new"]
+        return self.strategy in ["record", "update", "update-new"]
 
     @property
     def should_update(self) -> bool:
-        return self.strategy in ["update"]
+        return self.strategy in ["record", "update"]
 
     @property
     def should_delete(self) -> bool:
-        return self.strategy in ["update"]
+        return self.strategy in ["record", "update"]
 
     def write_summary(self):
-        if not any([self.created, self.updated, self.deleted]):
+        if not any([self.recorded, self.created, self.updated, self.deleted]):
             return
 
         self.tr.ensure_newline()
         self.tr.section("SNAPSHOTS", blue=True)
 
         report = {
+            "RECORD": self.recorded,
             "CREATE": self.created,
             "UPDATE": self.updated,
             "DELETE": self.deleted,

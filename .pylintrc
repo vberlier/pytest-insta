@@ -10,6 +10,7 @@ disable=
   missing-class-docstring,
   missing-function-docstring,
   unsupported-assignment-operation,
+  too-many-instance-attributes,
   too-few-public-methods,
   protected-access,
   no-self-use
