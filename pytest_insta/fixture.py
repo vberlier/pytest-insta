@@ -5,12 +5,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from _pytest import fixtures, python
+from _pytest import fixtures
 from wrapt import ObjectProxy
 
 from .format import Fmt
 from .session import SnapshotContext, SnapshotSession
-from .utils import normalize_node_name
+from .utils import node_path_name
 
 
 @dataclass
@@ -43,16 +43,8 @@ class SnapshotFixture:
 
     @classmethod
     def from_request(cls, request: fixtures.FixtureRequest) -> "SnapshotFixture":
-        current = request.node
-        hierarchy = [normalize_node_name(current.name)]
-
-        while not isinstance(current, python.Module):
-            current = current.parent
-            hierarchy.append(normalize_node_name(current.name))
-
-        path = Path(current.fspath).relative_to(Path(".").resolve())
-        path = path.with_name("snapshots") / "__".join(reversed(hierarchy))
-
+        path, name = node_path_name(request.node)
+        path = path.with_name("snapshots") / name
         session: SnapshotSession = getattr(request.config, "_snapshot_session")
         return cls(session[path], session)
 
