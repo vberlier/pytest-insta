@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, Set, Tuple
 
 from _pytest.terminal import TerminalReporter
+from pytest import Session
 
 from .format import Fmt
 from .utils import is_ci
@@ -44,9 +45,9 @@ class SnapshotContext:
 
     def flush(self, session: "SnapshotSession"):
         created, updated, deleted = (
-            self.created if session.strategy in ["all", "new"] else {},
-            self.updated if session.strategy == "all" else {},
-            self.deleted if session.strategy == "all" else set(),
+            self.created if session.strategy in ["update", "update-new"] else {},
+            self.updated if session.strategy == "update" else {},
+            self.deleted if session.strategy == "update" else set(),
         )
 
         for source, target in [(created, session.created), (updated, session.updated)]:
@@ -68,14 +69,19 @@ class SnapshotContext:
 
 @dataclass
 class SnapshotSession(Dict[Path, SnapshotContext]):
-    strategy: str
+    session: Session
+    tr: TerminalReporter = field(init=False)
+    strategy: str = "auto"
     created: Set[Path] = field(default_factory=set)
     updated: Set[Path] = field(default_factory=set)
     deleted: Set[Path] = field(default_factory=set)
 
     def __post_init__(self):
+        self.tr = self.session.config.pluginmanager.getplugin("terminalreporter")
+        self.strategy = self.session.config.option.insta
+
         if self.strategy == "auto":
-            self.strategy = "none" if is_ci() else "new"
+            self.strategy = "update-none" if is_ci() else "update-new"
 
     def __missing__(self, path: Path) -> SnapshotContext:
         available = set(path.parent.glob(f"{path.name}__*"))
@@ -83,12 +89,12 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
         self[path] = ctx
         return ctx
 
-    def write_summary(self, tr: TerminalReporter):
+    def write_summary(self):
         if not any([self.created, self.updated, self.deleted]):
             return
 
-        tr.ensure_newline()
-        tr.section("SNAPSHOTS", blue=True)
+        self.tr.ensure_newline()
+        self.tr.section("SNAPSHOTS", blue=True)
 
         report = {
             "CREATED": self.created,
@@ -98,4 +104,4 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
 
         for operation, snapshots in report.items():
             for snapshot in snapshots:
-                tr.write_line(f"{operation} {snapshot}")
+                self.tr.write_line(f"{operation} {snapshot}")
