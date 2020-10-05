@@ -107,23 +107,23 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
 
     @property
     def should_record(self) -> bool:
-        return self.strategy in ["record"]
+        return self.strategy in ["record", "review"]
 
     @property
     def should_create(self) -> bool:
-        return self.strategy in ["record", "update", "update-new"]
+        return self.strategy in ["record", "review", "update", "update-new"]
 
     @property
     def should_update(self) -> bool:
-        return self.strategy in ["record", "update"]
+        return self.strategy in ["record", "review", "update"]
 
     @property
     def should_delete(self) -> bool:
-        return self.strategy in ["record", "update"]
+        return self.strategy in ["record", "review", "update"]
 
     @property
     def should_review(self) -> bool:
-        return self.strategy in ["review-only"]
+        return self.strategy in ["review-only", "review"]
 
     @property
     def should_skip_testloop(self) -> bool:

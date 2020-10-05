@@ -21,6 +21,7 @@ def pytest_addoption(parser):
             "update-new",
             "update-none",
             "record",
+            "review",
             "review-only",
         ],
         help="Set the snapshot strategy. "
