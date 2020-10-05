@@ -21,6 +21,7 @@ def pytest_addoption(parser):
             "update-new",
             "update-none",
             "record",
+            "review-only",
         ],
         help="Set the snapshot strategy. "
         'Defaults to "auto" when the argument is not specified.',
@@ -29,6 +30,15 @@ def pytest_addoption(parser):
 
 def pytest_sessionstart(session):
     session.config._snapshot_session = SnapshotSession(session)
+
+
+def pytest_runtestloop(session):
+    return session.config._snapshot_session.should_skip_testloop or None
+
+
+def pytest_sessionfinish(session, exitstatus):
+    if not exitstatus:
+        session.config._snapshot_session.on_finish()
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):

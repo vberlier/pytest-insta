@@ -9,6 +9,7 @@ from _pytest.terminal import TerminalReporter
 from pytest import Session
 
 from .format import Fmt
+from .review import ReviewTool
 from .utils import is_ci
 
 
@@ -83,6 +84,7 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
     record_dir: Path = field(init=False)
     strategy: str = "auto"
     recorded: Set[Path] = field(default_factory=set)
+    rejected: Set[Path] = field(default_factory=set)
     created: Set[Path] = field(default_factory=set)
     updated: Set[Path] = field(default_factory=set)
     deleted: Set[Path] = field(default_factory=set)
@@ -119,8 +121,36 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
     def should_delete(self) -> bool:
         return self.strategy in ["record", "update"]
 
+    @property
+    def should_review(self) -> bool:
+        return self.strategy in ["review-only"]
+
+    @property
+    def should_skip_testloop(self) -> bool:
+        return self.strategy in ["review-only"]
+
+    def on_finish(self):
+        if not self.should_review:
+            return
+
+        capture = self.session.config.pluginmanager.getplugin("capturemanager")
+        capture.suspend_global_capture(True)
+
+        review_tool = ReviewTool(self.tr, self.record_dir, self.session.items)
+
+        for snapshot, destination in review_tool.collect():
+            if destination:
+                snapshot.rename(destination)
+                self.updated.add(destination)
+            else:
+                snapshot.unlink()
+                self.rejected.add(snapshot)
+            self.recorded.discard(snapshot)
+
     def write_summary(self):
-        if not any([self.recorded, self.created, self.updated, self.deleted]):
+        if not any(
+            [self.recorded, self.rejected, self.created, self.updated, self.deleted]
+        ):
             return
 
         self.tr.ensure_newline()
@@ -128,6 +158,7 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
 
         report = {
             "RECORD": self.recorded,
+            "REJECT": self.rejected,
             "CREATE": self.created,
             "UPDATE": self.updated,
             "DELETE": self.deleted,

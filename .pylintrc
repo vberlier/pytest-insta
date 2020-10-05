@@ -13,4 +13,5 @@ disable=
   too-many-instance-attributes,
   too-few-public-methods,
   protected-access,
-  no-self-use
+  no-self-use,
+  no-member
