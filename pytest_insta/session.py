@@ -1,6 +1,7 @@
 __all__ = ["SnapshotSession", "SnapshotContext"]
 
 
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Set, Tuple
@@ -167,3 +168,6 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
         for operation, snapshots in report.items():
             for snapshot in snapshots:
                 self.tr.write_line(f"{operation} {snapshot}")
+
+    def count_snapshots_to_review(self) -> int:
+        return sum(len(entries[-1]) for entries in os.walk(self.record_dir))
