@@ -149,10 +149,16 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
             self.recorded.discard(snapshot)
 
     def write_summary(self):
+        notice_prefix = "\n"
+        snapshots_to_review = self.count_snapshots_to_review()
+
         if not any(
             [self.recorded, self.rejected, self.created, self.updated, self.deleted]
         ):
-            return
+            if snapshots_to_review:
+                notice_prefix = ""
+            else:
+                return
 
         self.tr.ensure_newline()
         self.tr.section("SNAPSHOTS", blue=True)
@@ -168,6 +174,11 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
         for operation, snapshots in report.items():
             for snapshot in snapshots:
                 self.tr.write_line(f"{operation} {snapshot}")
+
+        if snapshots_to_review:
+            pluralized = "snapshot" + "s" * (snapshots_to_review > 1)
+            self.tr.write(f"{notice_prefix}NOTICE", bold=True, yellow=True)
+            self.tr.write_line(f" {snapshots_to_review} {pluralized} to review")
 
     def count_snapshots_to_review(self) -> int:
         return sum(len(entries[-1]) for entries in os.walk(self.record_dir))
