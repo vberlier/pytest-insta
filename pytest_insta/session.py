@@ -2,16 +2,17 @@ __all__ = ["SnapshotSession", "SnapshotContext"]
 
 
 import os
+import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 from _pytest.terminal import TerminalReporter
 from pytest import Session
 
 from .format import Fmt
 from .review import ReviewTool
-from .utils import is_ci
+from .utils import is_ci, pluralize
 
 
 @dataclass
@@ -89,6 +90,7 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
     created: Set[Path] = field(default_factory=set)
     updated: Set[Path] = field(default_factory=set)
     deleted: Set[Path] = field(default_factory=set)
+    notices: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         record_dir = self.session.config.cache.makedir("insta")  # type: ignore
@@ -128,41 +130,45 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
 
     @property
     def should_skip_testloop(self) -> bool:
-        return self.strategy in ["review-only"]
+        return self.strategy in ["review-only", "clear"]
 
-    def on_finish(self):
-        if not self.should_review:
-            return
+    @property
+    def should_clear_recorded(self) -> bool:
+        return self.strategy in ["clear"]
 
-        capture = self.session.config.pluginmanager.getplugin("capturemanager")
-        capture.suspend_global_capture(True)
+    def on_finish(self, status: int = 0):
+        if not status:
+            self.on_success()
 
-        review_tool = ReviewTool(self.tr, self.record_dir, self.session.items)
+        if snapshots_to_review := self.count_snapshots_to_review():
+            self.notices.append(
+                pluralize("snapshot", snapshots_to_review) + " to review"
+            )
 
-        for snapshot, destination in review_tool.collect():
-            if destination:
-                snapshot.rename(destination)
-                self.updated.add(destination)
-            else:
-                snapshot.unlink()
-                self.rejected.add(snapshot)
-            self.recorded.discard(snapshot)
+    def on_success(self):
+        if self.should_review:
+            capture = self.session.config.pluginmanager.getplugin("capturemanager")
+            capture.suspend_global_capture(True)
+
+            review_tool = ReviewTool(self.tr, self.record_dir, self.session.items)
+
+            for snapshot, destination in review_tool.collect():
+                if destination:
+                    snapshot.rename(destination)
+                    self.updated.add(destination)
+                else:
+                    snapshot.unlink()
+                    self.rejected.add(snapshot)
+                self.recorded.discard(snapshot)
+
+        if self.should_clear_recorded:
+            snapshots_to_clear = self.count_snapshots_to_review()
+            shutil.rmtree(self.record_dir)
+            self.notices.append(
+                pluralize("recorded snapshot", snapshots_to_clear) + " cleared"
+            )
 
     def write_summary(self):
-        notice_prefix = "\n"
-        snapshots_to_review = self.count_snapshots_to_review()
-
-        if not any(
-            [self.recorded, self.rejected, self.created, self.updated, self.deleted]
-        ):
-            if snapshots_to_review:
-                notice_prefix = ""
-            else:
-                return
-
-        self.tr.ensure_newline()
-        self.tr.section("SNAPSHOTS", blue=True)
-
         report = {
             "RECORD": self.recorded,
             "REJECT": self.rejected,
@@ -171,14 +177,23 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
             "DELETE": self.deleted,
         }
 
+        if not any(report.values()) and not self.notices:
+            return
+
+        self.tr.ensure_newline()
+        self.tr.section("SNAPSHOTS", blue=True)
+
         for operation, snapshots in report.items():
             for snapshot in snapshots:
                 self.tr.write_line(f"{operation} {snapshot}")
 
-        if snapshots_to_review:
-            pluralized = "snapshot" + "s" * (snapshots_to_review > 1)
-            self.tr.write(f"{notice_prefix}NOTICE", bold=True, yellow=True)
-            self.tr.write_line(f" {snapshots_to_review} {pluralized} to review")
+        if self.notices:
+            if any(report.values()):
+                self.tr.write_line("")
+
+            for notice in self.notices:
+                self.tr.write("NOTICE ", bold=True, yellow=True)
+                self.tr.write_line(notice)
 
     def count_snapshots_to_review(self) -> int:
         return sum(len(entries[-1]) for entries in os.walk(self.record_dir))

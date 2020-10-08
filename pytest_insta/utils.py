@@ -1,4 +1,11 @@
-__all__ = ["normalize_node_name", "node_path_name", "hexdump", "hexload", "is_ci"]
+__all__ = [
+    "normalize_node_name",
+    "node_path_name",
+    "hexdump",
+    "hexload",
+    "is_ci",
+    "pluralize",
+]
 
 
 import math
@@ -43,3 +50,7 @@ def hexload(dump: str):
 
 def is_ci():
     return "CI" in os.environ or "TF_BUILD" in os.environ
+
+
+def pluralize(word: str, count: int) -> str:
+    return f"{count} {word}" + "s" * (count > 1)
