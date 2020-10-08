@@ -134,7 +134,7 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
 
     @property
     def should_clear_recorded(self) -> bool:
-        return self.strategy in ["clear"]
+        return self.strategy in ["update", "clear"]
 
     def on_finish(self, status: int = 0):
         if not status:
@@ -161,8 +161,9 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
                     self.rejected.add(snapshot)
                 self.recorded.discard(snapshot)
 
-        if self.should_clear_recorded:
-            snapshots_to_clear = self.count_snapshots_to_review()
+        if self.should_clear_recorded and (
+            snapshots_to_clear := self.count_snapshots_to_review()
+        ):
             shutil.rmtree(self.record_dir)
             self.notices.append(
                 pluralize("recorded snapshot", snapshots_to_clear) + " cleared"
