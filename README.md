@@ -1,12 +1,14 @@
 # pytest-insta
 
-[![Build Status](https://travis-ci.com/vberlier/pytest-insta.svg?token=HSyYhdxSKy5kTTrkmWq7&branch=master)](https://travis-ci.com/vberlier/pytest-insta)
+[![Build Status](https://travis-ci.com/vberlier/pytest-insta.svg?branch=main)](https://travis-ci.com/vberlier/pytest-insta)
 [![PyPI](https://img.shields.io/pypi/v/pytest-insta.svg)](https://pypi.org/project/pytest-insta/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pytest-insta.svg)](https://pypi.org/project/pytest-insta/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
-> A flexible and user-friendly snapshot testing plugin for pytest.
+<img align="right" width="50%" src="https://raw.githubusercontent.com/vberlier/pytest-insta/main/demo.svg?sanitize=true">
+
+> A user-friendly snapshot testing plugin for pytest.
 
 ```python
 assert snapshot() == "awesome!"
