@@ -185,7 +185,7 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
         self.tr.section("SNAPSHOTS", blue=True)
 
         for operation, snapshots in report.items():
-            for snapshot in snapshots:
+            for snapshot in sorted(snapshots):
                 self.tr.write_line(f"{operation} {snapshot}")
 
         if self.notices:
