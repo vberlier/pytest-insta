@@ -35,7 +35,6 @@ class SnapshotRecorder(ObjectProxy):  # pylint: disable=abstract-method
             self._self_ctx.matching.add(self._self_path)
         else:
             self._self_ctx.differing[self._self_path] = self._self_fmt, other
-        if isinstance(self.__wrapped__, SnapshotNotfound):
             self.__wrapped__ = other
         return True
 
