@@ -45,6 +45,80 @@ The package can be installed with `pip`.
 $ pip install pytest-insta
 ```
 
+## Usage
+
+### Snapshot
+
+The `snapshot` fixture is a function that returns the current value of a snapshot.
+
+```python
+def test_hello_world(snapshot):
+    assert snapshot() == "hello"
+```
+
+```bash
+$ pytest
+...
+CREATE snapshots/<prefix>__hello_world__0.txt
+```
+
+Running this test will create a new snapshot in the `snapshots` directory. The next time pytest runs, the test will load the snapshot and compare it to the actual value.
+
+> **Note**
+>
+> You shouldn't add the `snapshots` directory to your `.gitignore`. Snapshots are supposed to be checked into source control!
+
+It's worth mentioning that you can assign the snapshot instance to a variable and use it multiple times in different assertions.
+
+```python
+def test_hello_world(snapshot):
+    expected = snapshot()
+    actual = "hello"
+    assert expected == actual
+    assert expected.upper() == actual.upper()
+```
+
+Note that each invocation of the `snapshot` function will generate its own snapshot by default.
+
+```python
+def test_hello_world(snapshot):
+    assert snapshot() == "hello"
+    assert snapshot() == "world"
+```
+
+```bash
+$ pytest
+...
+CREATE snapshots/<prefix>__hello_world__0.txt
+CREATE snapshots/<prefix>__hello_world__1.txt
+```
+
+If you name a snapshot explicitly you'll be able to load it several times.
+
+```python
+def test_hello_world(snapshot):
+    assert snapshot("message.txt") == "hello"
+    assert snapshot("message.txt") == "hello"
+```
+
+```bash
+$ pytest
+...
+CREATE snapshots/<prefix>__hello_world__message.txt
+```
+
+### Format
+
+> **WIP**
+
+### Strategy
+
+> **WIP**
+
+### Reviewing tool
+
+> **WIP**
+
 ## Contributing
 
 Contributions are welcome. Make sure to first open an issue discussing the problem or the new feature before creating a pull request. The project uses [`poetry`](https://python-poetry.org).
