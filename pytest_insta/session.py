@@ -12,7 +12,7 @@ from pytest import Session
 
 from .format import Fmt
 from .review import ReviewTool
-from .utils import is_ci, pluralize
+from .utils import is_ci, pluralize, remove_path
 
 
 @dataclass
@@ -68,7 +68,7 @@ class SnapshotContext:
 
         if session.should_delete:
             for path in self.deleted:
-                path.unlink()
+                remove_path(path)
                 session.deleted.add(path)
 
         self.reset()
@@ -157,7 +157,7 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
                     snapshot.rename(destination)
                     self.updated.add(destination)
                 else:
-                    snapshot.unlink()
+                    remove_path(snapshot)
                     self.rejected.add(snapshot)
                 self.recorded.discard(snapshot)
 

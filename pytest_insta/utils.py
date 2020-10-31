@@ -5,12 +5,14 @@ __all__ = [
     "hexload",
     "is_ci",
     "pluralize",
+    "remove_path",
 ]
 
 
 import math
 import os
 import re
+import shutil
 from pathlib import Path
 from typing import Any, Tuple
 
@@ -54,3 +56,10 @@ def is_ci():
 
 def pluralize(word: str, count: int) -> str:
     return f"{count} {word}" + "s" * (count > 1)
+
+
+def remove_path(path: Path):
+    if path.is_dir():
+        shutil.rmtree(path)
+    else:
+        path.unlink(missing_ok=True)
