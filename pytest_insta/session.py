@@ -5,7 +5,7 @@ import os
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, Iterable, List, Set, Tuple
 
 from _pytest.terminal import TerminalReporter
 from pytest import Session
@@ -197,4 +197,15 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
                 self.tr.write_line(notice)
 
     def count_snapshots_to_review(self) -> int:
-        return sum(len(entries[-1]) for entries in os.walk(self.record_dir))
+        return len(list(self.collect_snapshots_to_review()))
+
+    def collect_snapshots_to_review(self) -> Iterable[str]:
+        for _, dirs, files in os.walk(self.record_dir):
+            directory_snapshots = {
+                directory
+                for directory in dirs
+                if any(directory.endswith(extension) for extension in Fmt.registry)
+            }
+            dirs[:] = set(dirs) - directory_snapshots
+            yield from directory_snapshots
+            yield from files
