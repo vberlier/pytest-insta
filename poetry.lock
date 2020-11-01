@@ -234,7 +234,7 @@ python-versions = "*"
 
 [[package]]
 name = "rope"
-version = "0.17.0"
+version = "0.18.0"
 description = "a python refactoring library..."
 category = "dev"
 optional = false
@@ -286,7 +286,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "29ed825f02fb8e8383d5b5f90eef138d2681ed67e9bbcbc9dfae1c375333535f"
+content-hash = "0c6a6a986ef760904964fc69ec4f65505b3ff8e8b109eacc9282203ff7f0e79c"
 
 [metadata.files]
 appdirs = [
@@ -429,7 +429,7 @@ regex = [
     {file = "regex-2020.10.28.tar.gz", hash = "sha256:dd3e6547ecf842a29cf25123fbf8d2461c53c8d37aa20d87ecee130c89b7079b"},
 ]
 rope = [
-    {file = "rope-0.17.0.tar.gz", hash = "sha256:658ad6705f43dcf3d6df379da9486529cf30e02d9ea14c5682aa80eb33b649e1"},
+    {file = "rope-0.18.0.tar.gz", hash = "sha256:786b5c38c530d4846aa68a42604f61b4e69a493390e3ca11b88df0fbfdc3ed04"},
 ]
 six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
