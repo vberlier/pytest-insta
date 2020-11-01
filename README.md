@@ -31,7 +31,7 @@ This project borrows from a lot of other implementations to provide a pythonic, 
 
 - [`insta`](https://github.com/mitsuhiko/insta) (rust)
 
-  Armin's work was the initial motivation for this project. It inspired the review workflow by keeping everything as straightforward as possible.
+  Armin's work was the initial motivation for this project and inspired the reviewing workflow.
 
 - [`jest`](https://jestjs.io/docs/en/snapshot-testing) (javascript)
 
