@@ -6,6 +6,7 @@ __all__ = [
     "is_ci",
     "pluralize",
     "remove_path",
+    "rename_path",
 ]
 
 
@@ -63,3 +64,8 @@ def remove_path(path: Path):
         shutil.rmtree(path)
     else:
         path.unlink(missing_ok=True)
+
+
+def rename_path(src: Path, dst: Path):
+    remove_path(dst)
+    shutil.move(str(src), dst)

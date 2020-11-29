@@ -12,7 +12,7 @@ from pytest import Session
 
 from .format import Fmt
 from .review import ReviewTool
-from .utils import is_ci, pluralize, remove_path
+from .utils import is_ci, pluralize, remove_path, rename_path
 
 
 @dataclass
@@ -154,7 +154,7 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
 
             for snapshot, destination in review_tool.collect():
                 if destination:
-                    snapshot.rename(destination)
+                    rename_path(snapshot, destination)
                     self.updated.add(destination)
                 else:
                     remove_path(snapshot)
