@@ -1,6 +1,6 @@
 # pytest-insta
 
-[![Build Status](https://travis-ci.com/vberlier/pytest-insta.svg?branch=main)](https://travis-ci.com/vberlier/pytest-insta)
+![Build Status](https://github.com/vberlier/pytest-insta/workflows/CI/badge.svg)
 [![PyPI](https://img.shields.io/pypi/v/pytest-insta.svg)](https://pypi.org/project/pytest-insta/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pytest-insta.svg)](https://pypi.org/project/pytest-insta/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
