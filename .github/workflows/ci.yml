@@ -1,0 +1,54 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '(ci skip)')"
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.1.1
+        with:
+          virtualenvs-in-project: true
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install
+
+      - name: Run tests
+        run: poetry run pytest
+      - name: Type check
+        run: poetry run mypy
+      - name: Check formatting
+        run: poetry run black --check pytest_insta tests
+
+      - name: Detect new version
+        if: github.ref == 'refs/heads/main'
+        uses: actions-ecosystem/action-regex-match@v2
+        id: match-version
+        with:
+          text: ${{ github.event.head_commit.message }}
+          regex: '^Version\s+(\S+)\s*$'
+      - name: Publish
+        if: steps.match-version.outputs.group1 != ''
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: poetry publish --build -u __token__ -p $PYPI_TOKEN
+      - name: Create Release
+        if: steps.match-version.outputs.group1 != ''
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.match-version.outputs.group1 }}
+          release_name: Release ${{ steps.match-version.outputs.group1 }}
