@@ -52,3 +52,4 @@ jobs:
         with:
           tag_name: v${{ steps.match-version.outputs.group1 }}
           release_name: Release ${{ steps.match-version.outputs.group1 }}
+          body: ''
