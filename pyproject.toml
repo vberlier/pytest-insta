@@ -21,6 +21,8 @@ keywords = [
 
 classifiers = ["Framework :: Pytest"]
 
+include = ["pytest_insta/py.typed"]
+
 [tool.poetry.dependencies]
 python = "^3.8"
 pytest = "^6.0.2"
