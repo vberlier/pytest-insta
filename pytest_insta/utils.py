@@ -15,12 +15,12 @@ import os
 import re
 import shutil
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any, Iterator, Tuple
 
 from _pytest import python
 
 
-def normalize_node_name(name: str):
+def normalize_node_name(name: str) -> str:
     return re.sub(
         r"\W+", "_", re.sub(r"^(tests?[_/])*|([_/]tests?)*(\.\w+)?$", "", name)
     ).strip("_")
@@ -33,13 +33,15 @@ def node_path_name(node: Any) -> Tuple[Path, str]:
         node = node.parent
         hierarchy.append(normalize_node_name(node.name))
 
+    path = Path(node.fspath)  # type: ignore
+
     return (
-        Path(node.fspath).relative_to(Path(".").resolve()),
+        path.relative_to(Path(".").resolve()),
         "__".join(reversed(hierarchy)),
     )
 
 
-def hexdump(data: bytes, n: int = 16):
+def hexdump(data: bytes, n: int = 16) -> Iterator[str]:
     for k, i in enumerate(range((len(data) + n - 1) // n)):
         values = data[i * n : (i + 1) * n]
         line = values.hex(b" ", -2)
@@ -47,11 +49,11 @@ def hexdump(data: bytes, n: int = 16):
         yield f"{k * n:08x}:  {line:{math.ceil(n * 2.5)}} {suffix}"
 
 
-def hexload(dump: str):
+def hexload(dump: str) -> bytes:
     return b"".join(bytes.fromhex(line.split("  ")[1]) for line in dump.splitlines())
 
 
-def is_ci():
+def is_ci() -> bool:
     return "CI" in os.environ or "TF_BUILD" in os.environ
 
 

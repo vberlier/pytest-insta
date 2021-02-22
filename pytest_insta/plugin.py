@@ -1,3 +1,6 @@
+# type: ignore
+
+
 import pytest
 
 from .fixture import SnapshotFixture
@@ -43,5 +46,4 @@ def pytest_sessionfinish(session, exitstatus):
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
-    # pylint: disable=unused-argument
     config._snapshot_session.write_summary()

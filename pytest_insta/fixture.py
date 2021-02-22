@@ -21,11 +21,11 @@ class SnapshotNotfound:
         return f"<not found: {self.path.name!r}>"
 
 
-class SnapshotRecorder(ObjectProxy):  # pylint: disable=abstract-method
+class SnapshotRecorder(ObjectProxy):
     __wrapped__: Any
 
-    def __init__(self, path: Path, fmt: Fmt, ctx: SnapshotContext, current: Any):
-        super().__init__(current)
+    def __init__(self, path: Path, fmt: Fmt[Any], ctx: SnapshotContext, current: Any):
+        super().__init__(current)  # type: ignore
         self._self_path = path
         self._self_fmt = fmt
         self._self_ctx = ctx
@@ -52,7 +52,7 @@ class SnapshotFixture:
         return cls(session[path], session)
 
     def __call__(self, spec: str = ".txt") -> Any:
-        __tracebackhide__ = True  # pylint: disable=unused-variable
+        __tracebackhide__ = True
 
         name, fmt = Fmt.from_spec(spec)
 
@@ -78,7 +78,7 @@ class SnapshotFixture:
     def __enter__(self) -> "SnapshotFixture":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, *_):
         self.ctx.flush(self.session)
 
     def __repr__(self) -> str:

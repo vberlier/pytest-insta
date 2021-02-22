@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple
+from typing import Any, Tuple
 
 from pytest_insta import Fmt
 
@@ -21,7 +21,7 @@ class FmtPoint(Fmt[Point]):
         path.write_text(f"{value.x} {value.y}")
 
 
-def test_point(snapshot):
+def test_point(snapshot: Any):
     assert snapshot("pt") == Point(4, 2)
     assert snapshot(".pt") == Point(4, 5)
 
@@ -38,5 +38,5 @@ class FmtTextPair(Fmt[Tuple[str, str]]):
         (path / "right.txt").write_text(value[1])
 
 
-def test_text_dir(snapshot):
+def test_text_dir(snapshot: Any):
     assert snapshot("textpair") == ("hello", "world")

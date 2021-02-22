@@ -29,7 +29,7 @@ class ReviewEnvironment(Dict[str, Any]):
 
 
 class ReviewConsole(InteractiveConsole):
-    def raw_input(self, prompt=""):
+    def raw_input(self, prompt: str = "") -> str:
         if self.locals.outcome:  # type: ignore
             raise EOFError()
         return super().raw_input(prompt)
@@ -38,6 +38,7 @@ class ReviewConsole(InteractiveConsole):
 @dataclass
 class ReviewTool:
     tr: TerminalReporter
+    config: Any
     record_dir: Path
     tests: Collection[Any]
 
@@ -51,8 +52,8 @@ class ReviewTool:
     def display_assertion(self, old: Any, new: Any):
         self.tr.write_line("\n>       assert old == new")
 
-        lines, *_ = self.tr.config.hook.pytest_assertrepr_compare(
-            config=self.tr.config, op="==", left=old, right=new
+        lines, *_ = self.config.hook.pytest_assertrepr_compare(
+            config=self.config, op="==", left=old, right=new
         )
 
         self.tr.write_line(
@@ -110,7 +111,6 @@ class ReviewTool:
         review_env = ReviewEnvironment(old=old, new=new)
 
         try:
-            # pylint: disable=import-outside-toplevel
             import readline
             import rlcompleter
 

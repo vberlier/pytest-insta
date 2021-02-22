@@ -21,13 +21,13 @@ class SnapshotContext:
     counter: int
     available: Set[Path]
     matching: Set[Path]
-    differing: Dict[Path, Tuple[Fmt, Any]]
+    differing: Dict[Path, Tuple[Fmt[Any], Any]]
 
     def __post_init__(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
     @property
-    def created(self) -> Dict[Path, Tuple[Fmt, Any]]:
+    def created(self) -> Dict[Path, Tuple[Fmt[Any], Any]]:
         return {
             path: pair
             for path, pair in self.differing.items()
@@ -35,7 +35,7 @@ class SnapshotContext:
         }
 
     @property
-    def updated(self) -> Dict[Path, Tuple[Fmt, Any]]:
+    def updated(self) -> Dict[Path, Tuple[Fmt[Any], Any]]:
         return {
             path: pair
             for path, pair in self.differing.items()
@@ -82,6 +82,7 @@ class SnapshotContext:
 @dataclass
 class SnapshotSession(Dict[Path, SnapshotContext]):
     session: Session
+    config: Any = field(init=False)
     tr: TerminalReporter = field(init=False)
     record_dir: Path = field(init=False)
     strategy: str = "auto"
@@ -93,11 +94,12 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
     notices: List[str] = field(default_factory=list)
 
     def __post_init__(self):
-        record_dir = self.session.config.cache.makedir("insta")  # type: ignore
+        self.config = self.session.config
+        record_dir = self.config.cache.makedir("insta")
 
-        self.tr = self.session.config.pluginmanager.getplugin("terminalreporter")
+        self.tr = self.config.pluginmanager.getplugin("terminalreporter")
         self.record_dir = Path(record_dir).relative_to(Path(".").resolve())
-        self.strategy = self.session.config.option.insta
+        self.strategy = self.config.option.insta
 
         if self.strategy == "auto":
             self.strategy = "update-none" if is_ci() else "update-new"
@@ -147,10 +149,12 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
 
     def on_success(self):
         if self.should_review:
-            capture = self.session.config.pluginmanager.getplugin("capturemanager")
+            capture = self.config.pluginmanager.getplugin("capturemanager")
             capture.suspend_global_capture(True)
 
-            review_tool = ReviewTool(self.tr, self.record_dir, self.session.items)
+            review_tool = ReviewTool(
+                self.tr, self.config, self.record_dir, self.session.items
+            )
 
             for snapshot, destination in review_tool.collect():
                 if destination:

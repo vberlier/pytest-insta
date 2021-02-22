@@ -3,6 +3,7 @@ __all__ = ["Fmt", "FmtText", "FmtBinary", "FmtHexdump", "FmtJson", "FmtPickle"]
 
 import json
 import pickle
+from itertools import accumulate
 from pathlib import Path
 from typing import Any, ClassVar, Dict, Generic, Optional, Tuple, Type, TypeVar
 
@@ -13,24 +14,36 @@ T = TypeVar("T")
 
 class Fmt(Generic[T]):
     extension: ClassVar[str] = ""
-    registry: ClassVar[Dict[str, Type["Fmt"]]] = {}
+    registry: ClassVar[Dict[str, Type["Fmt[Any]"]]] = {}
 
     def __init_subclass__(cls):
         if cls.extension:
             cls.registry[cls.extension] = cls
 
     @classmethod
-    def from_spec(cls, spec: str) -> Tuple[Optional[str], Optional["Fmt"]]:
-        for name, key in [(None, spec), (None, f".{spec}"), (spec, Path(spec).suffix)]:
+    def from_spec(cls, spec: str) -> Tuple[Optional[str], Optional["Fmt[Any]"]]:
+        for name, key in [
+            (None, spec),
+            (None, f".{spec}"),
+            *reversed(
+                [
+                    (spec, suffix)
+                    for suffix in accumulate(
+                        reversed(Path(spec).suffixes), lambda a, b: b + a, initial=""
+                    )
+                ]
+            ),
+        ]:
+            print(name, key)
             if format_cls := cls.registry.get(key):
                 return name, format_cls()
         return None, None
 
     def load(self, path: Path) -> T:
-        pass
+        raise NotImplementedError()
 
-    def dump(self, path: Path, value: T):
-        pass
+    def dump(self, path: Path, value: T) -> None:
+        raise NotImplementedError()
 
 
 class FmtText(Fmt[str]):
