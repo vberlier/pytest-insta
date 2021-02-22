@@ -4,7 +4,6 @@
 [![PyPI](https://img.shields.io/pypi/v/pytest-insta.svg)](https://pypi.org/project/pytest-insta/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pytest-insta.svg)](https://pypi.org/project/pytest-insta/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-[![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
 > A practical snapshot testing plugin for pytest.
 
@@ -328,13 +327,6 @@ You can run the tests with `poetry run pytest`.
 
 ```bash
 $ poetry run pytest
-```
-
-The project must type-check with [`mypy`](http://mypy-lang.org) and [`pylint`](https://www.pylint.org) shouldn't report any error.
-
-```bash
-$ poetry run mypy
-$ poetry run pylint pytest_insta tests
 ```
 
 The code follows the [`black`](https://github.com/psf/black) code style. Import statements are sorted with [`isort`](https://pycqa.github.io/isort/).
