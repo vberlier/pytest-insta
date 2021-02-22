@@ -329,6 +329,13 @@ You can run the tests with `poetry run pytest`.
 $ poetry run pytest
 ```
 
+The project must type-check with [`pyright`](https://github.com/microsoft/pyright). If you're using VSCode the [`pylance`](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance) extension should report diagnostics automatically. You can also install the type-checker locally with `npm install` and run it from the command-line.
+
+```bash
+$ npm run watch
+$ npm run check
+```
+
 The code follows the [`black`](https://github.com/psf/black) code style. Import statements are sorted with [`isort`](https://pycqa.github.io/isort/).
 
 ```bash
