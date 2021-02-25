@@ -34,7 +34,6 @@ class Fmt(Generic[T]):
                 ]
             ),
         ]:
-            print(name, key)
             if format_cls := cls.registry.get(key):
                 return name, format_cls()
         return None, None
