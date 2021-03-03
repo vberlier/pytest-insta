@@ -4,7 +4,6 @@ __all__ = ["ReviewTool"]
 from code import InteractiveConsole
 from dataclasses import dataclass
 from pathlib import Path
-from textwrap import indent
 from typing import Any, Collection, Dict, Iterator, Optional, Tuple
 
 from _pytest.terminal import TerminalReporter
@@ -56,14 +55,10 @@ class ReviewTool:
             config=self.config, op="==", left=old, right=new
         )
 
-        self.tr.write_line(
-            indent(
-                "assert " + "\n".join("  " + line for line in lines).strip(),
-                "E       ",
-            ),
-            blue=True,
-            bold=True,
-        )
+        explanation = "assert " + "\n".join("  " + line for line in lines).strip()
+
+        for line in explanation.splitlines():
+            self.tr.write_line(f"E       {line}", blue=True, bold=True)
 
     def collect(self) -> Iterator[Tuple[Path, Optional[Path]]]:
         if to_review := list(self.recorded_snapshots):
