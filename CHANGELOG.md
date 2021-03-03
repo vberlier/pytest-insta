@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.7 (2021-03-03)
+### Fix
+* Don't use textwrap.indent because all lines need to be prefixed ([`8eaa8c2`](https://github.com/vberlier/pytest-insta/commit/8eaa8c207f8f12566da0d8f4fae0933f72d9afd7))
+
 ## v0.1.6 (2021-02-25)
 ### Fix
 * Remove leftover print ([`0f20dd2`](https://github.com/vberlier/pytest-insta/commit/0f20dd2679c47f7acad6d21499f9fd2037d62d26))
