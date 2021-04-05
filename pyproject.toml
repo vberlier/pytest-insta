@@ -32,7 +32,7 @@ wrapt = "^1.12.1"
 black = "^20.8b1"
 rope = "^0.18.0"
 isort = "^5.8.0"
-python-semantic-release = "^7.15.1"
+python-semantic-release = "^7.15.3"
 
 [tool.poetry.plugins.pytest11]
 insta = "pytest_insta.plugin"
