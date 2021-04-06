@@ -98,7 +98,7 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
         record_dir = self.config.cache.makedir("insta")
 
         self.tr = self.config.pluginmanager.getplugin("terminalreporter")
-        self.record_dir = Path(record_dir).relative_to(Path(".").resolve())
+        self.record_dir = Path(os.path.relpath(Path(record_dir), Path(".").resolve()))
         self.strategy = self.config.option.insta
 
         if self.strategy == "auto":
