@@ -53,7 +53,10 @@ class SnapshotContext:
                 session.created.add(path)
 
         if session.should_record:
-            record_dir = session.record_dir / self.path.parent.parent
+            directory = self.path.parent.parent.resolve()
+            record_dir = session.record_dir / directory.relative_to(
+                session.config.rootpath
+            )
             record_dir.mkdir(parents=True, exist_ok=True)
 
             for path, (fmt, value) in self.updated.items():

@@ -1,6 +1,7 @@
 __all__ = ["ReviewTool"]
 
 
+import os
 from code import InteractiveConsole
 from dataclasses import dataclass
 from pathlib import Path
@@ -45,7 +46,8 @@ class ReviewTool:
     def recorded_snapshots(self) -> Iterator[Tuple[Any, Path]]:
         for test in self.tests:
             path, name = node_path_name(test)
-            for snapshot in (self.record_dir / path.parent).glob(f"{name}__*"):
+            directory = path.parent.resolve().relative_to(self.config.rootpath)
+            for snapshot in (self.record_dir / directory).glob(f"{name}__*"):
                 yield test, snapshot
 
     def display_assertion(self, old: Any, new: Any):
@@ -66,10 +68,12 @@ class ReviewTool:
             self.tr.section("SNAPSHOT REVIEWS")
 
         for i, (test, recorded) in enumerate(to_review):
-            original = (
-                recorded.parent.relative_to(self.record_dir)
-                / "snapshots"
-                / recorded.name
+            directory = recorded.parent.relative_to(self.record_dir)
+            original = Path(
+                os.path.relpath(
+                    self.config.rootpath / directory / "snapshots" / recorded.name,
+                    Path(".").resolve(),
+                )
             )
 
             self.tr.ensure_newline()
