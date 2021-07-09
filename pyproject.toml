@@ -31,7 +31,7 @@ wrapt = "^1.12.1"
 [tool.poetry.dev-dependencies]
 black = "^21.6b0"
 rope = "^0.19.0"
-isort = "^5.9.1"
+isort = "^5.9.2"
 python-semantic-release = "^7.16.2"
 
 [tool.poetry.plugins.pytest11]
