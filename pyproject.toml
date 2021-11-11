@@ -30,7 +30,7 @@ wrapt = "^1.12.1"
 
 [tool.poetry.dev-dependencies]
 black = "^21.7b0"
-rope = "^0.19.0"
+rope = "^0.21.1"
 isort = "^5.9.3"
 python-semantic-release = "^7.16.3"
 
