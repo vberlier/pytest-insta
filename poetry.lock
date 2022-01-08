@@ -457,17 +457,6 @@ python-versions = "*"
 idna2008 = ["idna"]
 
 [[package]]
-name = "rope"
-version = "0.19.0"
-description = "a python refactoring library..."
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.extras]
-dev = ["pytest"]
-
-[[package]]
 name = "secretstorage"
 version = "3.3.1"
 description = "Python bindings to FreeDesktop.org Secret Service API"
@@ -608,7 +597,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "bb7c19941e6b3727dbec997bad88dfdc4998b4723d5733310ef0a9fd2e9b5d0f"
+content-hash = "cf0f6284e51125693a09c046716270282ed28a984dce11319fe05d818e9f0a7f"
 
 [metadata.files]
 atomicwrites = [
@@ -823,9 +812,6 @@ requests-toolbelt = [
 rfc3986 = [
     {file = "rfc3986-1.4.0-py2.py3-none-any.whl", hash = "sha256:af9147e9aceda37c91a05f4deb128d4b4b49d6b199775fd2d2927768abdc8f50"},
     {file = "rfc3986-1.4.0.tar.gz", hash = "sha256:112398da31a3344dc25dbf477d8df6cb34f9278a94fee2625d89e4514be8bb9d"},
-]
-rope = [
-    {file = "rope-0.19.0.tar.gz", hash = "sha256:64e6d747532e1f5c8009ec5aae3e5523a5bcedf516f39a750d57d8ed749d90da"},
 ]
 secretstorage = [
     {file = "SecretStorage-3.3.1-py3-none-any.whl", hash = "sha256:422d82c36172d88d6a0ed5afdec956514b189ddbfb72fefab0c8a1cee4eaf71f"},
