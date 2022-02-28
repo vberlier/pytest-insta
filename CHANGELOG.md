@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.11 (2022-02-28)
+### Fix
+* Update dependencies ([`60c708f`](https://github.com/vberlier/pytest-insta/commit/60c708fe8e5e2fb1fcbd0fdff81ad62f7381c209))
+
 ## v0.1.10 (2021-04-07)
 ### Fix
 * Automatically reject dangling snapshots ([`1fed16f`](https://github.com/vberlier/pytest-insta/commit/1fed16fce67d01d73e942dd7feebcd76935409a5))
