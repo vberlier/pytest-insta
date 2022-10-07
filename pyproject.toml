@@ -29,7 +29,7 @@ pytest = ">=6.0.2"
 wrapt = "^1.12.1"
 
 [tool.poetry.dev-dependencies]
-black = "^22.1.0"
+black = "^22.10.0"
 isort = "^5.10.1"
 python-semantic-release = "^7.25.2"
 
