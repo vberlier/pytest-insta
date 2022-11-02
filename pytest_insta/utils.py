@@ -45,7 +45,7 @@ def hexdump(data: bytes, n: int = 16) -> Iterator[str]:
     for k, i in enumerate(range((len(data) + n - 1) // n)):
         values = data[i * n : (i + 1) * n]
         line = values.hex(b" ", -2)
-        suffix = "".join(chr(i) if chr(i).isprintable() else "." for i in values)
+        suffix = "".join(chr(i) if 32 <= i < 127 else "." for i in values)
         yield f"{k * n:08x}:  {line:{math.ceil(n * 2.5)}} {suffix}"
 
 
