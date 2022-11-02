@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.0 (2022-11-02)
+### Feature
+* Force utf-8 text snapshot encoding ([`990c031`](https://github.com/vberlier/pytest-insta/commit/990c031f6656ef9e2eeeaf74da7c89b8be1f0215))
+
+### Fix
+* Restrict printable characters in hexdump snapshot ([`aa9a405`](https://github.com/vberlier/pytest-insta/commit/aa9a40515df79767dc2030dc239ac4df99fd15a0))
+
 ## v0.1.11 (2022-02-28)
 ### Fix
 * Update dependencies ([`60c708f`](https://github.com/vberlier/pytest-insta/commit/60c708fe8e5e2fb1fcbd0fdff81ad62f7381c209))
