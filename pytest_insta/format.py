@@ -49,10 +49,10 @@ class FmtText(Fmt[str]):
     extension = ".txt"
 
     def load(self, path: Path) -> str:
-        return path.read_text()
+        return path.read_text("utf-8")
 
     def dump(self, path: Path, value: str):
-        path.write_text(value)
+        path.write_text(value, "utf-8")
 
 
 class FmtBinary(Fmt[bytes]):
@@ -69,20 +69,20 @@ class FmtHexdump(Fmt[bytes]):
     extension = ".hexdump"
 
     def load(self, path: Path) -> bytes:
-        return hexload(path.read_text())
+        return hexload(path.read_text("utf-8"))
 
     def dump(self, path: Path, value: bytes):
-        path.write_text("\n".join(hexdump(value)) + "\n")
+        path.write_text("\n".join(hexdump(value)) + "\n", "utf-8")
 
 
 class FmtJson(Fmt[Any]):
     extension = ".json"
 
     def load(self, path: Path) -> Any:
-        return json.loads(path.read_text())
+        return json.loads(path.read_text("utf-8"))
 
     def dump(self, path: Path, value: Any):
-        path.write_text(json.dumps(value, indent=2) + "\n")
+        path.write_text(json.dumps(value, indent=2) + "\n", "utf-8")
 
 
 class FmtPickle(Fmt[Any]):
