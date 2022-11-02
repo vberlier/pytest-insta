@@ -25,34 +25,25 @@ include = ["pytest_insta/py.typed"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-pytest = ">=6.0.2"
-wrapt = "^1.12.1"
+pytest = "^7.2.0"
+wrapt = "^1.14.1"
 
-[tool.poetry.dev-dependencies]
-black = "^22.1.0"
+[tool.poetry.group.dev.dependencies]
+black = "^22.10.0"
 isort = "^5.10.1"
-python-semantic-release = "^7.25.2"
+python-semantic-release = "^7.32.1"
 
 [tool.poetry.plugins.pytest11]
 insta = "pytest_insta.plugin"
 
+[tool.pytest.ini_options]
+addopts = "tests --import-mode=importlib"
+
+[tool.pyright]
+typeCheckingMode = "strict"
+
 [tool.black]
 target-version = ["py38"]
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
 
 [tool.isort]
 profile = "black"
@@ -65,5 +56,5 @@ major_on_zero = false
 build_command = "poetry build"
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
