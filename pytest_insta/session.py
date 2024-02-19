@@ -98,12 +98,21 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
 
     def __post_init__(self):
         self.config = self.session.config
-        record_dir = self.config.cache.makedir("insta")
 
-        self.tr = self.config.pluginmanager.getplugin("terminalreporter")
+        cache = self.config.cache
+        if not cache:
+            raise TypeError("No cache")
+
+        record_dir = cache.mkdir("insta")
         self.record_dir = Path(os.path.relpath(Path(record_dir), Path(".").resolve()))
-        self.strategy = self.config.option.insta
 
+        tr = self.config.pluginmanager.getplugin("terminalreporter")
+        if not isinstance(tr, TerminalReporter):
+            raise TypeError("No TerminalReporter")
+
+        self.tr = tr
+
+        self.strategy = self.config.option.insta
         if self.strategy == "auto":
             self.strategy = "update-none" if is_ci() else "update-new"
 

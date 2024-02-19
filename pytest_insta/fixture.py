@@ -46,7 +46,7 @@ class SnapshotFixture:
 
     @classmethod
     def from_request(cls, request: fixtures.FixtureRequest) -> "SnapshotFixture":
-        path, name = node_path_name(request.node)
+        path, name = node_path_name(request.node)  # type: ignore
         path = path.with_name("snapshots") / name
         session: SnapshotSession = getattr(request.config, "_snapshot_session")
         return cls(session[path], session)

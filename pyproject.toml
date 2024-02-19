@@ -24,13 +24,13 @@ classifiers = ["Framework :: Pytest"]
 include = ["pytest_insta/py.typed"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-pytest = "^7.2.0"
+python = "^3.10"
+pytest = ">=7.2.0,<9.0.0"
 wrapt = "^1.14.1"
 
 [tool.poetry.group.dev.dependencies]
-black = "^22.10.0"
-isort = "^5.10.1"
+black = "^24.2.0"
+isort = "^5.13.2"
 python-semantic-release = "^7.32.1"
 
 [tool.poetry.plugins.pytest11]
@@ -43,7 +43,7 @@ addopts = "tests --import-mode=importlib"
 typeCheckingMode = "strict"
 
 [tool.black]
-target-version = ["py38"]
+target-version = ["py310"]
 
 [tool.isort]
 profile = "black"
