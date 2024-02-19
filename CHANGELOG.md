@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.0 (2024-02-19)
+
+### Feature
+
+* Update to pytest 8 ([`9b1ab52`](https://github.com/vberlier/pytest-insta/commit/9b1ab5268a961216b7c28572543af07278154127))
+
 ## v0.2.0 (2022-11-02)
 ### Feature
 * Force utf-8 text snapshot encoding ([`990c031`](https://github.com/vberlier/pytest-insta/commit/990c031f6656ef9e2eeeaf74da7c89b8be1f0215))
