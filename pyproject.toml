@@ -31,7 +31,7 @@ wrapt = "^1.14.1"
 [tool.poetry.group.dev.dependencies]
 black = "^24.2.0"
 isort = "^5.13.2"
-python-semantic-release = "^7.32.1"
+python-semantic-release = ">=7.32.1,<10.0.0"
 
 [tool.poetry.plugins.pytest11]
 insta = "pytest_insta.plugin"
