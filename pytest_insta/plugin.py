@@ -1,6 +1,5 @@
 # type: ignore
 
-
 import pytest
 
 from .fixture import SnapshotFixture
@@ -47,3 +46,9 @@ def pytest_sessionfinish(session, exitstatus):
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     config._snapshot_session.write_summary()
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "pytest_insta(config): marker for pytest_insta configuration"
+    )

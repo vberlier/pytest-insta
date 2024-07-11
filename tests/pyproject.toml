@@ -1,0 +1,4 @@
+[tool.poetry]
+name = "pytest-insta-tests"
+
+pytest_insta = { path = "./../pytest_insta", develop = true }
