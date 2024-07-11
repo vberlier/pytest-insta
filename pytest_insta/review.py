@@ -1,7 +1,6 @@
 __all__ = ["ReviewTool"]
 
 
-import os
 from code import InteractiveConsole
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,8 +8,9 @@ from typing import Any, Collection, Dict, Iterator, List, Optional, Tuple
 
 from _pytest.terminal import TerminalReporter
 
+from .config import SnapshotConfig
 from .format import Fmt
-from .utils import node_path_name
+from .utils import get_snapshots_path
 
 
 class ReviewEnvironment(Dict[str, Any]):
@@ -44,16 +44,13 @@ class ReviewTool:
 
     def scan_recorded_snapshots(self) -> Iterator[Tuple[Any, Path, Path]]:
         for test in self.tests:
-            path, name = node_path_name(test)
-            directory = path.parent.resolve().relative_to(self.config.rootpath)
+            config = SnapshotConfig.from_node(test)
+            path = get_snapshots_path(test, config.use_directories_for_snapshots)
+            directory = path.parent.parent.resolve()
+            record_dir = self.record_dir / directory.relative_to(self.config.rootpath)
 
-            for snapshot in (self.record_dir / directory).glob(f"{name}__*"):
-                original = Path(
-                    os.path.relpath(
-                        self.config.rootpath / directory / "snapshots" / snapshot.name,
-                        Path(".").resolve(),
-                    )
-                )
+            for snapshot in record_dir.glob(f"{path.name}__*"):
+                original = path.with_name(snapshot.name)
                 yield test, snapshot, original
 
     def display_assertion(self, old: Any, new: Any):

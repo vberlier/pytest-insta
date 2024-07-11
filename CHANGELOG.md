@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (2024-07-12)
+
+### Feature
+
+* Added use_directories_for_snapshots ([`06a0cc5`](https://github.com/vberlier/pytest-insta/commit/06a0cc55269a8447a495ddad8e25cb703cb9fe13))
+
+
 ## v0.3.0 (2024-02-19)
 
 ### Feature

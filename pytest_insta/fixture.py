@@ -1,6 +1,5 @@
 __all__ = ["SnapshotFixture", "SnapshotRecorder", "SnapshotNotfound"]
 
-
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -8,9 +7,10 @@ from typing import Any
 from _pytest import fixtures
 from wrapt import ObjectProxy
 
+from .config import SnapshotConfig
 from .format import Fmt
 from .session import SnapshotContext, SnapshotSession
-from .utils import node_path_name
+from .utils import get_snapshots_path
 
 
 @dataclass
@@ -46,8 +46,9 @@ class SnapshotFixture:
 
     @classmethod
     def from_request(cls, request: fixtures.FixtureRequest) -> "SnapshotFixture":
-        path, name = node_path_name(request.node)  # type: ignore
-        path = path.with_name("snapshots") / name
+        node = request.node  # type: ignore
+        config = SnapshotConfig.from_node(node)
+        path = get_snapshots_path(node, config.use_directories_for_snapshots)
         session: SnapshotSession = getattr(request.config, "_snapshot_session")
         return cls(session[path], session)
 

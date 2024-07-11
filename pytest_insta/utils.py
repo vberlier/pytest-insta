@@ -1,6 +1,7 @@
 __all__ = [
     "normalize_node_name",
     "node_path_name",
+    "get_snapshots_path",
     "hexdump",
     "hexload",
     "is_ci",
@@ -19,11 +20,25 @@ from typing import Any, Iterator, Tuple
 
 from _pytest import python
 
+_SNAPSHOTS_FOLDER = "snapshots"
+
 
 def normalize_node_name(name: str) -> str:
     return re.sub(
         r"\W+", "_", re.sub(r"^(tests?[_/])*|([_/]tests?)*(\.\w+)?$", "", name)
     ).strip("_")
+
+
+def get_snapshots_path(node: Any, use_directories_for_snapshots: bool) -> Path:
+    if use_directories_for_snapshots:
+        path = Path(node.fspath)
+        test_file_name = normalize_node_name(path.stem)
+        # When you use pytest.mark.parametrize, test name will be test_name[test_case_name]
+        # We need to replace '[', ']' with '/' to create a directory structure: name/test_case_name
+        test_name = node.name.replace("[", "/").replace("]", "/")
+        return path.with_name(_SNAPSHOTS_FOLDER).joinpath(test_file_name, test_name)
+    path, name = node_path_name(node)
+    return path.with_name(_SNAPSHOTS_FOLDER) / name
 
 
 def node_path_name(node: Any) -> Tuple[Path, str]:
