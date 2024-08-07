@@ -3,12 +3,12 @@ __all__ = ["SnapshotFixture", "SnapshotRecorder", "SnapshotNotfound"]
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from _pytest import fixtures
 from wrapt import ObjectProxy
 
-from .format import Fmt
+from .format import Fmt, LoadParamsSpec
 from .session import SnapshotContext, SnapshotSession
 from .utils import node_path_name
 
@@ -51,7 +51,7 @@ class SnapshotFixture:
         session: SnapshotSession = getattr(request.config, "_snapshot_session")
         return cls(session[path], session)
 
-    def __call__(self, spec: str = ".txt") -> Any:
+    def __call__(self, spec: str = ".txt", fmt_load_params: Optional[LoadParamsSpec] = None) -> Any:
         __tracebackhide__ = True
 
         name, fmt = Fmt.from_spec(spec)
@@ -64,6 +64,8 @@ class SnapshotFixture:
 
         path = self.ctx.path.with_name(f"{self.ctx.path.name}__{name}")
 
+        fmt_load_params = fmt_load_params or LoadParamsSpec([], {})
+        fmt.load_params_spec = fmt_load_params
         current = (
             fmt.load(path) if path in self.ctx.available else SnapshotNotfound(path)
         )

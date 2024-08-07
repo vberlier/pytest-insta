@@ -1,4 +1,4 @@
-__all__ = ["Fmt", "FmtText", "FmtBinary", "FmtHexdump", "FmtJson", "FmtPickle"]
+__all__ = ["Fmt", "FmtText", "FmtBinary", "FmtHexdump", "FmtJson", "FmtPickle", "LoadParamsSpec"]
 
 
 import json
@@ -6,15 +6,23 @@ import pickle
 from itertools import accumulate
 from pathlib import Path
 from typing import Any, ClassVar, Dict, Generic, Optional, Tuple, Type, TypeVar
+from dataclasses import dataclass, field
+from typing import Any, Mapping, Sequence
 
 from .utils import hexdump, hexload
 
 T = TypeVar("T")
 
+@dataclass
+class LoadParamsSpec():
+    args: Sequence[Any] = field(default_factory=list)
+    kwargs: Mapping[str, Any] = field(default_factory=dict)
+
 
 class Fmt(Generic[T]):
     extension: ClassVar[str] = ""
     registry: ClassVar[Dict[str, Type["Fmt[Any]"]]] = {}
+    load_params_spec: Optional[LoadParamsSpec] = None
 
     def __init_subclass__(cls):
         if cls.extension:
