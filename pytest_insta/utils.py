@@ -14,16 +14,36 @@ import math
 import os
 import re
 import shutil
+import unicodedata
 from pathlib import Path
 from typing import Any, Iterator, Tuple
 
 from _pytest import python
 
 
+def replace_non_alphanumeric_with_unicode_names(text):
+    result = []
+    for char in text:
+        if char.isalnum() or char in ("_", "-", "."):
+            result.append(char)
+        else:
+            result.append("_")
+
+            try:
+                name = unicodedata.name(char)
+                result.append(name.lower().replace(" ", "_"))
+            except ValueError:
+                result.append(f"x{ord(char):x}")
+
+            result.append("_")
+    return "".join(result)
+
+
 def normalize_node_name(name: str) -> str:
-    return re.sub(
-        r"\W+", "_", re.sub(r"^(tests?[_/])*|([_/]tests?)*(\.\w+)?$", "", name)
-    ).strip("_")
+    test_name = re.sub(r"^(tests?[_/])*|([_/]tests?)*(\.\w+)?$", "", name)
+    unescaped = bytes(test_name, "utf-8").decode("unicode_escape")
+    normalized = replace_non_alphanumeric_with_unicode_names(unescaped)
+    return normalized
 
 
 def node_path_name(node: Any) -> Tuple[Path, str]:
