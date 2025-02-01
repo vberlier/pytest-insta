@@ -10,6 +10,7 @@ __all__ = [
 ]
 
 
+import hashlib
 import math
 import os
 import re
@@ -21,29 +22,13 @@ from typing import Any, Iterator, Tuple
 from _pytest import python
 
 
-def replace_non_alphanumeric_with_unicode_names(text):
-    result = []
-    for char in text:
-        if char.isalnum() or char in ("_", "-", "."):
-            result.append(char)
-        else:
-            result.append("_")
-
-            try:
-                name = unicodedata.name(char)
-                result.append(name.lower().replace(" ", "_"))
-            except ValueError:
-                result.append(f"x{ord(char):x}")
-
-            result.append("_")
-    return "".join(result)
-
-
 def normalize_node_name(name: str) -> str:
-    test_name = re.sub(r"^(tests?[_/])*|([_/]tests?)*(\.\w+)?$", "", name)
-    unescaped = bytes(test_name, "utf-8").decode("unicode_escape")
-    normalized = replace_non_alphanumeric_with_unicode_names(unescaped)
-    return normalized
+    return re.sub(
+        r"\W+", "_", re.sub(r"^(tests?[_/])*|([_/]tests?)*(\.\w+)?$", "", name)
+    ).strip("_")
+
+
+MAX_NODE_NAME_LENGTH = 224
 
 
 def node_path_name(node: Any) -> Tuple[Path, str]:
@@ -53,11 +38,27 @@ def node_path_name(node: Any) -> Tuple[Path, str]:
         node = node.parent
         hierarchy.append(normalize_node_name(node.name))
 
-    path = Path(node.fspath)  # type: ignore
+    basename = "__".join(reversed(hierarchy))
+    if len(basename) > MAX_NODE_NAME_LENGTH:
+        truncated = basename[:MAX_NODE_NAME_LENGTH]
+    else:
+        truncated = basename
+
+    # Always put a trailing hash on snapshot file paths to make sure that when
+    # two tests return the same value from `normalized_node_name` that they will
+    # still write to different files and not stomp on each other. This is
+    # especially important for parameterized tests. Note that there's still a
+    # tiny chance that these hashes also collide, so if users want zero chance
+    # of a collision they should give eac parameterized test a unique ID.
+    trailer = hashlib.shake_128(
+        basename.encode("utf-8"),
+        usedforsecurity=False,
+    ).hexdigest(4)
+    adjusted_basename = f"{truncated}__{trailer}"
 
     return (
-        path.relative_to(Path(".").resolve()),
-        "__".join(reversed(hierarchy)),
+        Path(node.fspath).relative_to(Path(".").resolve()),
+        adjusted_basename,
     )
 
 
@@ -70,7 +71,9 @@ def hexdump(data: bytes, n: int = 16) -> Iterator[str]:
 
 
 def hexload(dump: str) -> bytes:
-    return b"".join(bytes.fromhex(line.split("  ")[1]) for line in dump.splitlines())
+    return b"".join(
+        bytes.fromhex(line.split("  ")[1]) for line in dump.splitlines()
+    )
 
 
 def is_ci() -> bool:
