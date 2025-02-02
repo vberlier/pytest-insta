@@ -1,5 +1,4 @@
 __all__ = [
-    "normalize_node_name",
     "node_path_name",
     "hexdump",
     "hexload",
@@ -10,20 +9,27 @@ __all__ = [
 ]
 
 
+import hashlib
 import math
 import os
 import re
 import shutil
+import unicodedata
 from pathlib import Path
 from typing import Any, Iterator, Tuple
 
 from _pytest import python
 
 
+def safe_node_name(name: str) -> str:
+    return re.sub(r"\W+", "_", name).strip("_")
+
+
 def normalize_node_name(name: str) -> str:
-    return re.sub(
-        r"\W+", "_", re.sub(r"^(tests?[_/])*|([_/]tests?)*(\.\w+)?$", "", name)
-    ).strip("_")
+    return re.sub(r"^(tests?[_/])*|([_/]tests?)*(\.\w+)?$", "", name)
+
+
+MAX_NODE_NAME_LENGTH = 224
 
 
 def node_path_name(node: Any) -> Tuple[Path, str]:
@@ -33,11 +39,29 @@ def node_path_name(node: Any) -> Tuple[Path, str]:
         node = node.parent
         hierarchy.append(normalize_node_name(node.name))
 
-    path = Path(node.fspath)  # type: ignore
+    basename = "__".join(reversed(hierarchy))
+
+    # Always put a trailing hash on snapshot file paths to make sure that when
+    # two tests return the same value from `normalized_node_name` that they will
+    # still write to different files and not stomp on each other. This is
+    # especially important for parameterized tests. Note that there's still a
+    # tiny chance that these hashes also collide, so if users want zero chance
+    # of a collision they should give eac parameterized test a unique ID.
+    trailer = hashlib.shake_128(
+        basename.encode("utf-8"),
+        usedforsecurity=False,
+    ).hexdigest(4)
+
+    safe_basename = safe_node_name(basename)
+
+    if len(safe_basename) > MAX_NODE_NAME_LENGTH:
+        truncated = safe_basename[:MAX_NODE_NAME_LENGTH]
+    else:
+        truncated = safe_basename
 
     return (
-        path.relative_to(Path(".").resolve()),
-        "__".join(reversed(hierarchy)),
+        Path(node.fspath).relative_to(Path(".").resolve()),
+        f"{truncated}__{trailer}",
     )
 
 
@@ -50,7 +74,9 @@ def hexdump(data: bytes, n: int = 16) -> Iterator[str]:
 
 
 def hexload(dump: str) -> bytes:
-    return b"".join(bytes.fromhex(line.split("  ")[1]) for line in dump.splitlines())
+    return b"".join(
+        bytes.fromhex(line.split("  ")[1]) for line in dump.splitlines()
+    )
 
 
 def is_ci() -> bool:

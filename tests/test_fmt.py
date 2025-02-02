@@ -50,3 +50,31 @@ def test_pickle_dataclass(snapshot: Any):
 def test_invalid_format(snapshot: Any, spec: str):
     with pytest.raises(ValueError, match="invalid snapshot format"):
         snapshot(spec)
+
+
+@pytest.mark.parametrize(
+    "snapshot, text",
+    [
+        pytest.param(
+            None,
+            "bad/char)\f:☃️",
+        ),
+
+        # For these two tests, if the test name normalizer simply replaces
+        # non-alphanumeric characters with underscores, the test name will
+        # be the same between both, and so the resulting snapshot file
+        # will also be the same, causing the underlying test to fail or
+        # seem flaky each time the tests are run with --insta=update.
+        pytest.param(
+            None,
+            "overlap]",
+        ),
+        pytest.param(
+            None,
+            "overlap[",
+        ),
+    ],
+    indirect=["snapshot"],
+)
+def test_call(snapshot, text):
+    assert snapshot(".txt") == text
