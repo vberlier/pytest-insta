@@ -1,5 +1,4 @@
 __all__ = [
-    "normalize_node_name",
     "node_path_name",
     "hexdump",
     "hexload",
@@ -22,10 +21,12 @@ from typing import Any, Iterator, Tuple
 from _pytest import python
 
 
+def safe_node_name(name: str) -> str:
+    return re.sub(r"\W+", "_", name).strip("_")
+
+
 def normalize_node_name(name: str) -> str:
-    return re.sub(
-        r"\W+", "_", re.sub(r"^(tests?[_/])*|([_/]tests?)*(\.\w+)?$", "", name)
-    ).strip("_")
+    return re.sub(r"^(tests?[_/])*|([_/]tests?)*(\.\w+)?$", "", name)
 
 
 MAX_NODE_NAME_LENGTH = 224
@@ -39,10 +40,6 @@ def node_path_name(node: Any) -> Tuple[Path, str]:
         hierarchy.append(normalize_node_name(node.name))
 
     basename = "__".join(reversed(hierarchy))
-    if len(basename) > MAX_NODE_NAME_LENGTH:
-        truncated = basename[:MAX_NODE_NAME_LENGTH]
-    else:
-        truncated = basename
 
     # Always put a trailing hash on snapshot file paths to make sure that when
     # two tests return the same value from `normalized_node_name` that they will
@@ -54,11 +51,17 @@ def node_path_name(node: Any) -> Tuple[Path, str]:
         basename.encode("utf-8"),
         usedforsecurity=False,
     ).hexdigest(4)
-    adjusted_basename = f"{truncated}__{trailer}"
+
+    safe_basename = safe_node_name(basename)
+
+    if len(safe_basename) > MAX_NODE_NAME_LENGTH:
+        truncated = safe_basename[:MAX_NODE_NAME_LENGTH]
+    else:
+        truncated = safe_basename
 
     return (
         Path(node.fspath).relative_to(Path(".").resolve()),
-        adjusted_basename,
+        f"{truncated}__{trailer}",
     )
 
 
