@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (2025-11-12)
+
+### Feature
+
+* Python 3.14 ([`74cf64b`](https://github.com/vberlier/pytest-insta/commit/74cf64bcba890167203a490671ec7619ca679f06))
+
 ## v0.3.0 (2024-02-19)
 
 ### Feature
