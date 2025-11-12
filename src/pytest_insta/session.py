@@ -89,12 +89,12 @@ class SnapshotSession(Dict[Path, SnapshotContext]):
     tr: TerminalReporter = field(init=False)
     record_dir: Path = field(init=False)
     strategy: str = "auto"
-    recorded: Set[Path] = field(default_factory=set)
-    rejected: Set[Path] = field(default_factory=set)
-    created: Set[Path] = field(default_factory=set)
-    updated: Set[Path] = field(default_factory=set)
-    deleted: Set[Path] = field(default_factory=set)
-    notices: List[str] = field(default_factory=list)
+    recorded: Set[Path] = field(default_factory=set[Path])
+    rejected: Set[Path] = field(default_factory=set[Path])
+    created: Set[Path] = field(default_factory=set[Path])
+    updated: Set[Path] = field(default_factory=set[Path])
+    deleted: Set[Path] = field(default_factory=set[Path])
+    notices: List[str] = field(default_factory=list[str])
 
     def __post_init__(self):
         self.config = self.session.config

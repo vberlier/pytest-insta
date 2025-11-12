@@ -1,15 +1,17 @@
-[tool.poetry]
+[project]
 name = "pytest-insta"
 version = "0.3.0"
 description = "A practical snapshot testing plugin for pytest"
-authors = ["Valentin Berlier <berlier.v@gmail.com>"]
-license = "MIT"
-
-homepage = "https://github.com/vberlier/pytest-insta"
-repository = "https://github.com/vberlier/pytest-insta"
-documentation = "https://github.com/vberlier/pytest-insta"
-
 readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Valentin Berlier", email = "berlier.v@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "pytest>=9.0.0",
+    "wrapt>=2.0.1",
+]
 
 keywords = [
   "pytest-plugin",
@@ -21,40 +23,34 @@ keywords = [
 
 classifiers = ["Framework :: Pytest"]
 
-include = ["pytest_insta/py.typed"]
-
-[tool.poetry.dependencies]
-python = "^3.10"
-pytest = ">=7.2.0,<9.0.0"
-wrapt = "^1.14.1"
-
-[tool.poetry.group.dev.dependencies]
-black = "^24.2.0"
-isort = "^5.13.2"
-python-semantic-release = "^7.32.1"
-
-[tool.poetry.plugins.pytest11]
+[project.entry-points."pytest11"]
 insta = "pytest_insta.plugin"
+
+[build-system]
+requires = ["uv_build>=0.9.8,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "python-semantic-release==7.34.6",
+    "ruff>=0.14.4",
+]
 
 [tool.pytest.ini_options]
 addopts = "tests --import-mode=importlib"
 
 [tool.pyright]
+venvPath = "."
+venv = ".venv"
 typeCheckingMode = "strict"
-
-[tool.black]
-target-version = ["py310"]
-
-[tool.isort]
-profile = "black"
 
 [tool.semantic_release]
 branch = "main"
-version_variable = ["pytest_insta/__init__.py:__version__"]
-version_toml = "pyproject.toml:tool.poetry.version"
+version_variable = ["src/pytest_insta/__init__.py:__version__"]
+version_toml = "pyproject.toml:project.version"
 major_on_zero = false
-build_command = "poetry build"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+build_command = """
+    uv lock --upgrade-package "$PACKAGE_NAME"
+    git add uv.lock
+    uv build
+"""

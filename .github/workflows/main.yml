@@ -7,61 +7,42 @@ on:
     branches: [main]
 
 env:
-  PYTHON_VERSION: "3.10"
-  POETRY_VERSION: "1.7.1"
+  PYTHON_VERSION: "3.14"
 
 jobs:
   main:
     name: Test and release
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-release-${{ github.ref_name }}
+      cancel-in-progress: false
+
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - name: Cache poetry
-        id: cache-poetry
-        uses: actions/cache@v3
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          path: ~/.local
-          key: poetry-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ env.POETRY_VERSION }}
-      - name: Install poetry
-        if: steps.cache-poetry.outputs.cache-hit != 'true'
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-in-project: true
-      - name: Cache venv
-        id: cache-venv
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ env.POETRY_VERSION }}-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ env.POETRY_VERSION }}-
+          enable-cache: true
       - name: Install dependencies
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: poetry install
-      - name: Setup npm cache
-        id: cache-npm
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+        run: uv sync --locked --all-extras --dev
       - name: Install Pyright
-        if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm install
       - name: Run tests
-        run: poetry run pytest -v
+        run: uv run pytest -v
       - name: Run type-checking
         run: npm run check
       - name: Check formatting
-        run: poetry run black --check pytest_insta tests
+        run: uv run ruff check src tests
       - name: Release
         if: |
           github.repository == 'vberlier/pytest-insta'
@@ -73,4 +54,4 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "action@github.com"
-          poetry run semantic-release publish -v DEBUG -D commit_author="github-actions <action@github.com>"
+          uv run semantic-release publish -v DEBUG -D commit_author="github-actions <action@github.com>"

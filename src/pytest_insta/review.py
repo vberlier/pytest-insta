@@ -5,7 +5,7 @@ import os
 from code import InteractiveConsole
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Collection, Dict, Iterator, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Collection, Dict, Iterator, List, Optional, Tuple
 
 from _pytest.terminal import TerminalReporter
 
@@ -116,11 +116,12 @@ class ReviewTool:
         review_env = ReviewEnvironment(old=old, new=new)
 
         try:
-            import readline
-            import rlcompleter
+            if not TYPE_CHECKING:
+                import readline
+                import rlcompleter
 
-            readline.set_completer(rlcompleter.Completer(review_env).complete)
-            readline.parse_and_bind("tab: complete")
+                readline.set_completer(rlcompleter.Completer(review_env).complete)
+                readline.parse_and_bind("tab: complete")
         except ImportError:
             pass
 

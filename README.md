@@ -3,7 +3,6 @@
 ![Build Status](https://github.com/vberlier/pytest-insta/workflows/CI/badge.svg)
 [![PyPI](https://img.shields.io/pypi/v/pytest-insta.svg)](https://pypi.org/project/pytest-insta/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pytest-insta.svg)](https://pypi.org/project/pytest-insta/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 > A practical snapshot testing plugin for pytest.
 
@@ -317,16 +316,16 @@ The `snapshot` fixture hijacks equality checks to record changes. This keeps ass
 
 ## Contributing
 
-Contributions are welcome. Make sure to first open an issue discussing the problem or the new feature before creating a pull request. The project uses [`poetry`](https://python-poetry.org).
+Contributions are welcome. Make sure to first open an issue discussing the problem or the new feature before creating a pull request. The project uses [`uv`](https://github.com/astral-sh/uv).
 
-```bash
-$ poetry install
+```console
+$ uv sync
 ```
 
-You can run the tests with `poetry run pytest`.
+You can run the tests with `uv run pytest`.
 
 ```bash
-$ poetry run pytest
+$ uv run pytest
 ```
 
 The project must type-check with [`pyright`](https://github.com/microsoft/pyright). If you're using VSCode the [`pylance`](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance) extension should report diagnostics automatically. You can also install the type-checker locally with `npm install` and run it from the command-line.
@@ -336,12 +335,11 @@ $ npm run watch
 $ npm run check
 ```
 
-The code follows the [`black`](https://github.com/psf/black) code style. Import statements are sorted with [`isort`](https://pycqa.github.io/isort/).
+The code is formatted and checked with [`ruff`](https://github.com/astral-sh/ruff).
 
-```bash
-$ poetry run isort pytest_insta tests
-$ poetry run black pytest_insta tests
-$ poetry run black --check pytest_insta tests
+```console
+$ uv run ruff format src tests
+$ uv run ruff check src tests
 ```
 
 ---
