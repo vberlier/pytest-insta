@@ -7,7 +7,7 @@ license = "MIT"
 authors = [
     { name = "Valentin Berlier", email = "berlier.v@gmail.com" }
 ]
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 dependencies = [
     "pytest>=9.0.0",
     "wrapt>=2.0.1",
