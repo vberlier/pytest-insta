@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.1 (2025-11-22)
+
+### Fix
+
+* Allow python 3.10 again (close #268) ([`adb8f75`](https://github.com/vberlier/pytest-insta/commit/adb8f75101c911efdb2d7888a8d29e5f4298fef2))
+
 ## v0.4.0 (2025-11-12)
 
 ### Feature
